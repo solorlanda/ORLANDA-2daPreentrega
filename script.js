@@ -1,3 +1,34 @@
+class Carrito {
+    constructor() {
+        this.productos = [];
+    }
+
+    agregarProducto(producto) {
+        let indiceProductoEnCarrito = this.productos.findIndex(p => p.id === producto.id);
+
+        if (indiceProductoEnCarrito === -1) {
+            this.productos.push({
+                id: producto.id,
+                nombre: producto.nombre,
+                precioUnitario: producto.precio,
+                unidades: 1,
+                subtotal: producto.precio
+            });
+        } else {
+            this.productos[indiceProductoEnCarrito].unidades++;
+            this.productos[indiceProductoEnCarrito].subtotal = this.productos[indiceProductoEnCarrito].unidades * this.productos[indiceProductoEnCarrito].precioUnitario;
+        }
+    }
+
+    calcularTotal() {
+        return this.productos.reduce((acumulador, prod) => acumulador + prod.subtotal, 0);
+    }
+
+    estaVacio() {
+        return this.productos.length === 0;
+    }
+}
+
 let productos = [
     { id: 1001, nombre: "Lemon Pie", categoria: "Pies", precio: 5000, stock: 7 },
     { id: 1002, nombre: "Strawberry Pie", categoria: "Pies", precio: 6000, stock: 6 },
@@ -5,74 +36,60 @@ let productos = [
     { id: 2002, nombre: "Apple Cake", categoria: "Cakes", precio: 8000, stock: 5 },
     { id: 2003, nombre: "Chees Cake", categoria: "Cakes", precio: 7500, stock: 8 },
     { id: 3001, nombre: "Macarons", categoria: "Macarons", precio: 500, stock: 45 },
-]
-let carrito = []
+];
 
-let opcion = Number(prompt("Ingrese: \n1) Comprar \n2) Finalizar compra \n0) Salir"))
-console.log(opcion)
+let carrito = new Carrito();
+
+let opcion = Number(prompt("Ingrese: \n1) Comprar \n2) Finalizar compra \n0) Salir"));
+console.log(opcion);
 
 while (opcion !== 0) {
     if (opcion === 1) {
-        let idProducto = Number(prompt("Si desea filtrar por categoria ingrese: 4 \n\nSino seleccione producto por ID:\n" + listar(productos)))
+        let idProducto = Number(prompt("Si desea filtrar por categoria ingrese: 4 \n\nSino seleccione producto por ID:\n" + listar(productos)));
 
         if (idProducto === 4) {
-            let categoria
+            let categoria;
             do {
-                categoria = Number(prompt("Seleccione la categoria a filtrar: \n1) Pies \n2) Cakes \n3) Macarons"))
-            } while (![1, 2, 3].includes(categoria))
+                categoria = Number(prompt("Seleccione la categoria a filtrar: \n1) Pies \n2) Cakes \n3) Macarons"));
+            } while (![1, 2, 3].includes(categoria));
 
-            let filtroCategoria
+            let filtroCategoria;
             switch (categoria) {
                 case 1:
-                    filtroCategoria = productos.filter(producto => producto.categoria === "Pies")
-                    break
+                    filtroCategoria = productos.filter(producto => producto.categoria === "Pies");
+                    break;
                 case 2:
-                    filtroCategoria = productos.filter(producto => producto.categoria === "Cakes")
-                    break
+                    filtroCategoria = productos.filter(producto => producto.categoria === "Cakes");
+                    break;
                 case 3:
-                    filtroCategoria = productos.filter(producto => producto.categoria === "Macarons")
-                    break
+                    filtroCategoria = productos.filter(producto => producto.categoria === "Macarons");
+                    break;
             }
 
-            idProducto = Number(prompt("Ingrese el ID del producto que desea comprar:\n" + listar(filtroCategoria)))
+            idProducto = Number(prompt("Ingrese el ID del producto que desea comprar:\n" + listar(filtroCategoria)));
         }
 
-        let productoElegido = productos.find(producto => producto.id === idProducto)
+        let productoElegido = productos.find(producto => producto.id === idProducto);
         if (productoElegido && productoElegido.stock > 0) {
-            let indiceProductoEnCarrito = carrito.findIndex(producto => producto.id === idProducto)
-
-            if (indiceProductoEnCarrito === -1) {
-                carrito.push({
-                    id: productoElegido.id,
-                    nombre: productoElegido.nombre,
-                    precioUnitario: productoElegido.precio,
-                    unidades: 1,
-                    subtotal: productoElegido.precio
-                })
-            } else {
-                carrito[indiceProductoEnCarrito].unidades++
-                carrito[indiceProductoEnCarrito].subtotal = carrito[indiceProductoEnCarrito].unidades * carrito[indiceProductoEnCarrito].precioUnitario
-            }
-
-            // Disminuye stock
-            productoElegido.stock--
+            carrito.agregarProducto(productoElegido);
+            productoElegido.stock--;
         } else {
-            alert("El ID ingresado es inexistente o el producto no tiene stock disponible. Por favor ingrese un ID valido.")
+            alert("El ID ingresado es inexistente o el producto no tiene stock disponible. Por favor ingrese un ID valido.");
         }
 
     } else if (opcion === 2) {
-        if (carrito.length > 0) {
-            let total = carrito.reduce((acum, prod) => acum + prod.subtotal, 0)
-            alert("Total: " + total + " .Gracias por su compra.")
-            break
+        if (!carrito.estaVacio()) {
+            let total = carrito.calcularTotal();
+            alert("Total: " + total + " .Gracias por su compra.");
+            break;
         } else {
-            alert("El carrito está vacío.")
+            alert("El carrito está vacío.");
         }
     }
 
-    opcion = Number(prompt("Ingrese: \n1) Comprar \n2) Finalizar compra \n0) Salir"))
+    opcion = Number(prompt("Ingrese: \n1) Comprar \n2) Finalizar compra \n0) Salir"));
 }
 
 function listar(listaProductos) {
-    return listaProductos.map(producto => `ID: ${producto.id} - ${producto.nombre} - Categoria: ${producto.categoria} - Precio: $${producto.precio} - Stock: ${producto.stock}`).join("\n")
+    return listaProductos.map(producto => `ID: ${producto.id} - ${producto.nombre} - Categoria: ${producto.categoria} - Precio: $${producto.precio} - Stock: ${producto.stock}`).join("\n");
 }
